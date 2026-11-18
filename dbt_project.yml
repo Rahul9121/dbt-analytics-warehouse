@@ -1,0 +1,70 @@
+name: dbt_analytics_warehouse
+version: 1.0.0
+config-version: 2
+profile: dbt_analytics_warehouse
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+docs-paths: ["docs"]
+
+clean-targets:
+  - target
+  - dbt_packages
+  - logs
+
+vars:
+  # Set to true on the second CI/local pass to load batch 2 seed rows
+  load_batch_2: false
+
+models:
+  dbt_analytics_warehouse:
+    +materialized: view
+    staging:
+      +materialized: view
+      +schema: staging
+    marts:
+      +materialized: table
+      +schema: marts
+      core:
+        +materialized: table
+      metrics:
+        +materialized: table
+
+seeds:
+  dbt_analytics_warehouse:
+    +schema: raw
+    raw_accounts:
+      +column_types:
+        account_id: varchar
+        opened_date: date
+    raw_instruments:
+      +column_types:
+        instrument_id: varchar
+        list_date: date
+    raw_trades:
+      +column_types:
+        trade_id: varchar
+        trade_ts: timestamp
+        quantity: double
+        price: double
+        notional: double
+    raw_trades_batch2:
+      +column_types:
+        trade_id: varchar
+        trade_ts: timestamp
+        quantity: double
+        price: double
+        notional: double
+    raw_account_attributes:
+      +column_types:
+        account_id: varchar
+        effective_from: date
+
+snapshots:
+  dbt_analytics_warehouse:
+    +target_schema: snapshots
+

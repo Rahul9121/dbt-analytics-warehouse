@@ -1,0 +1,31 @@
+# dbt
+target/
+dbt_packages/
+dbt_modules/
+logs/
+.user.yml
+
+# python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.Python
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+.warp/
+WARP.md
+
+# duckdb temp
+*.duckdb.wal
+
+# local notes must never live here
+notes/
+*-notes/
+

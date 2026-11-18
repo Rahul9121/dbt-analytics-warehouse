@@ -1,0 +1,14 @@
+dbt_analytics_warehouse:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: target/warehouse.duckdb
+      threads: 1
+      schema: main
+    ci:
+      type: duckdb
+      path: target/ci_warehouse.duckdb
+      threads: 1
+      schema: main
+
