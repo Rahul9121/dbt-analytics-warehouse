@@ -1,0 +1,136 @@
+name: dbt CI and Docs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: dbt deps
+        run: dbt deps --profiles-dir .
+
+      - name: dbt seed (batch 1)
+        run: dbt seed --profiles-dir . --target ci
+
+      - name: dbt snapshot (initial)
+        run: dbt snapshot --profiles-dir . --target ci
+
+      - name: dbt run (batch 1)
+        run: dbt run --profiles-dir . --target ci
+
+      - name: dbt test (batch 1)
+        run: dbt test --profiles-dir . --target ci
+
+      - name: Capture batch-1 row counts
+        run: |
+          python - <<'PY'
+          import duckdb, pathlib
+          con = duckdb.connect("target/ci_warehouse.duckdb")
+          tables = [
+              "main_marts.fct_trades",
+              "main_marts.dim_account",
+              "main_marts.dim_instrument",
+              "main_marts.dim_date",
+              "main_snapshots.snap_account_attributes",
+          ]
+          pathlib.Path("target").mkdir(exist_ok=True)
+          with open("target/row_counts_batch1.txt", "w") as f:
+              for t in tables:
+                  try:
+                      n = con.execute(f"select count(*) from {t}").fetchone()[0]
+                  except Exception as e:
+                      n = f"ERR {e}"
+                  line = f"{t}={n}"
+                  print(line)
+                  f.write(line + "\n")
+          PY
+
+      - name: Apply batch-2 attributes + seed trades
+        run: |
+          cp data_batches/raw_account_attributes_v2.csv seeds/raw_account_attributes.csv
+          dbt seed --select raw_trades_batch2 raw_account_attributes --profiles-dir . --target ci
+          dbt run --select stg_account_attributes stg_trades fct_trades mart_daily_trade_volume mart_instrument_activity \
+            --vars '{"load_batch_2": true}' --profiles-dir . --target ci
+          dbt snapshot --profiles-dir . --target ci
+          dbt test --profiles-dir . --target ci
+
+      - name: Capture batch-2 row counts
+        run: |
+          python - <<'PY'
+          import duckdb
+          con = duckdb.connect("target/ci_warehouse.duckdb")
+          for t in [
+              "main_marts.fct_trades",
+              "main_snapshots.snap_account_attributes",
+              "main_marts.mart_daily_trade_volume",
+              "main_marts.mart_instrument_activity",
+          ]:
+              n = con.execute(f"select count(*) from {t}").fetchone()[0]
+              print(f"{t}={n}")
+          # show SCD2 change sample
+          print("--- snap sample ---")
+          print(con.execute("""
+            select account_id, risk_rating, tier, dbt_valid_from, dbt_valid_to
+            from main_snapshots.snap_account_attributes
+            where account_id in ('ACC001','ACC005')
+            order by account_id, dbt_valid_from
+          """).fetchdf().to_string(index=False))
+          PY
+
+      - name: dbt docs generate
+        run: dbt docs generate --profiles-dir . --target ci
+
+      - name: Package docs for Pages
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: |
+          mkdir -p site
+          cp target/index.html target/catalog.json target/manifest.json target/graph.gpickle site/ 2>/dev/null || true
+          cp target/index.html target/catalog.json target/manifest.json site/
+          touch site/.nojekyll
+
+      - name: Upload docs artifact
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy-docs:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
