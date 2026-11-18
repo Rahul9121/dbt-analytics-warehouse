@@ -3,6 +3,9 @@
 
 A small dimensional warehouse for capital-markets style trade data. Built with **dbt** on **DuckDB**.
 
+**Made by [Rahul Ega](https://github.com/Rahul9121)**  
+**GitHub repository:** [https://github.com/Rahul9121/dbt-analytics-warehouse](https://github.com/Rahul9121/dbt-analytics-warehouse)
+
 ## What you will find
 
 - **Sources / seeds** — synthetic accounts, instruments, trades, and account risk attributes
@@ -19,6 +22,11 @@ Seeds land in a `raw` schema. Staging views clean them. Dimensions and the trade
 ## Scope
 
 This project was developed and CI-tested on DuckDB only. The same dbt models can point at Snowflake or another warehouse by swapping the profile adapter; that path is not exercised here.
+
+## Author
+
+Built and maintained by **Rahul Ega** ([@Rahul9121](https://github.com/Rahul9121)).  
+Source code: [github.com/Rahul9121/dbt-analytics-warehouse](https://github.com/Rahul9121/dbt-analytics-warehouse)
 
 {% enddocs %}
 

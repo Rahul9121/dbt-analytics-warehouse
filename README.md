@@ -1,5 +1,7 @@
 # dbt Analytics Warehouse
 
+**Made by Rahul Ega** · [GitHub repo](https://github.com/Rahul9121/dbt-analytics-warehouse) · [Profile](https://github.com/Rahul9121)
+
 I built this as a small, self-contained dimensional warehouse for capital-markets style trade data. It runs on **dbt** with the **DuckDB** adapter. Everything is seeded CSV — no downloads, no API keys, and a full build finishes in well under a minute on a laptop.
 
 Live docs (lineage graph included): [https://rahul9121.github.io/dbt-analytics-warehouse/](https://rahul9121.github.io/dbt-analytics-warehouse/)
