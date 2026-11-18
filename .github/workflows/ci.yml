@@ -95,14 +95,17 @@ jobs:
           ]:
               n = con.execute(f"select count(*) from {t}").fetchone()[0]
               print(f"{t}={n}")
-          # show SCD2 change sample
           print("--- snap sample ---")
-          print(con.execute("""
-            select account_id, risk_rating, tier, dbt_valid_from, dbt_valid_to
+          rows = con.execute("""
+            select account_id, risk_rating, tier,
+                   cast(dbt_valid_from as varchar),
+                   cast(dbt_valid_to as varchar)
             from snapshots.snap_account_attributes
             where account_id in ('ACC001','ACC005')
             order by account_id, dbt_valid_from
-          """).fetchdf().to_string(index=False))
+          """).fetchall()
+          for r in rows:
+              print(r)
           PY
 
       - name: dbt docs generate
