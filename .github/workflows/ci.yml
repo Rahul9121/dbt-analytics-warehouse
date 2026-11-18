@@ -116,29 +116,6 @@ jobs:
         run: |
           mkdir -p site
           cp target/index.html target/catalog.json target/manifest.json site/
-          # Visible author credit + GitHub link in the docs UI
-          python - <<'PY'
-          from pathlib import Path
-          index = Path("site/index.html")
-          html = index.read_text(encoding="utf-8")
-          banner = """
-          <div id="author-banner" style="position:sticky;top:0;z-index:9999;background:#0b3d5c;color:#fff;padding:10px 16px;font-family:system-ui,sans-serif;font-size:14px;display:flex;gap:16px;align-items:center;justify-content:space-between;box-shadow:0 2px 6px rgba(0,0,0,.2)">
-            <div><strong>Made by Rahul Ega</strong> · dbt Analytics Warehouse</div>
-            <div style="display:flex;gap:12px;align-items:center">
-              <a href="https://github.com/Rahul9121/dbt-analytics-warehouse" target="_blank" rel="noopener" style="color:#fff;text-decoration:underline;font-weight:600">GitHub repo</a>
-              <a href="https://github.com/Rahul9121" target="_blank" rel="noopener" style="color:#cde7ff;text-decoration:underline">@Rahul9121</a>
-            </div>
-          </div>
-          """
-          if "author-banner" not in html:
-              html = html.replace("<body>", "<body>" + banner, 1)
-              if "<body>" not in html:
-                  html = banner + html
-              index.write_text(html, encoding="utf-8")
-              print("author banner injected")
-          else:
-              print("banner already present")
-          PY
           touch site/.nojekyll
 
       - name: Upload docs artifact
