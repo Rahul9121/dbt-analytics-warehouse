@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: mart_daily_trade_volume
+    description: Daily aggregated trade volume by desk, region, account type and asset class.
+    columns:
+      - name: trade_date
+        description: Trade calendar date.
+        tests: [not_null]
+      - name: trade_count
+        description: Number of trades in the grain.
+        tests: [not_null]
+      - name: gross_notional
+        description: Sum of absolute notionals.
+      - name: net_notional
+        description: Sum of signed notionals (buy minus sell).
+      - name: buy_notional
+        description: Notional on buy side only.
+      - name: sell_notional
+        description: Notional on sell side only.
+
+  - name: mart_instrument_activity
+    description: Per-instrument activity summary across the loaded blotter.
+    columns:
+      - name: instrument_id
+        tests: [unique, not_null]
+      - name: symbol
+        description: Market symbol.
+        tests: [not_null]
+      - name: trade_count
+        tests: [not_null]
+      - name: gross_notional
+        description: Total absolute notional traded.
+      - name: avg_price
+        description: Simple average trade price.

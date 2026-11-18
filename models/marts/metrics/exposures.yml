@@ -1,0 +1,29 @@
+version: 2
+
+exposures:
+  - name: desk_daily_pnl_dashboard
+    label: Desk Daily Volume Dashboard
+    type: dashboard
+    maturity: low
+    url: https://rahul9121.github.io/dbt-analytics-warehouse/
+    description: >
+      Example consumer of mart_daily_trade_volume for desk-level trade
+      counts and notionals.
+    depends_on:
+      - ref('mart_daily_trade_volume')
+      - ref('fct_trades')
+    owner:
+      name: Rahul Ega
+      email: 152943932+Rahul9121@users.noreply.github.com
+
+  - name: instrument_activity_report
+    label: Instrument Activity Report
+    type: analysis
+    maturity: low
+    description: Per-symbol activity used for desk coverage reviews.
+    depends_on:
+      - ref('mart_instrument_activity')
+    owner:
+      name: Rahul Ega
+      email: 152943932+Rahul9121@users.noreply.github.com
+
