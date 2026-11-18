@@ -1,0 +1,82 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: Calendar dimension covering Q1 2024 for trade analytics.
+    columns:
+      - name: date_key
+        description: Surrogate key as YYYYMMDD integer.
+        tests: [unique, not_null]
+      - name: date_day
+        tests: [unique, not_null]
+
+  - name: dim_account
+    description: Trading account dimension with current risk attributes.
+    columns:
+      - name: account_key
+        description: Surrogate key for the account.
+        tests: [unique, not_null]
+      - name: account_id
+        description: Natural account identifier.
+        tests: [unique, not_null]
+      - name: account_type
+        tests:
+          - accepted_values:
+              values: ['PROP', 'CLIENT', 'HEDGE']
+      - name: status
+        tests: [not_null]
+
+  - name: dim_instrument
+    description: Instrument dimension for equities, FX, rates and credit.
+    columns:
+      - name: instrument_key
+        description: Surrogate key for the instrument.
+        tests: [unique, not_null]
+      - name: instrument_id
+        tests: [unique, not_null]
+      - name: symbol
+        description: Ticker or market symbol.
+        tests: [not_null]
+      - name: asset_class
+        tests: [not_null]
+
+  - name: fct_trades
+    description: >
+      Incremental trade fact. Unique on trade_id. Uses delete+insert so
+      reprocessed trade ids stay idempotent. Second batch (T0041-T0050)
+      lands when load_batch_2 is true and stg_trades is rebuilt.
+    columns:
+      - name: trade_id
+        description: Natural trade identifier from the blotter.
+        tests: [unique, not_null]
+      - name: account_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_account')
+              field: account_key
+      - name: instrument_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_instrument')
+              field: instrument_key
+      - name: date_key
+        tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+      - name: side
+        tests:
+          - accepted_values:
+              values: ['BUY', 'SELL']
+      - name: notional
+        description: Absolute trade notional in trade currency.
+        tests: [not_null]
+      - name: signed_notional
+        description: Buy positive, sell negative notional.
+      - name: quantity
+        tests: [not_null]
+      - name: price
+        tests: [not_null]
+
