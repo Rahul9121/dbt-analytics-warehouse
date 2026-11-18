@@ -40,11 +40,11 @@ jobs:
       - name: dbt seed (batch 1)
         run: dbt seed --profiles-dir . --target ci
 
-      - name: dbt snapshot (initial)
-        run: dbt snapshot --profiles-dir . --target ci
-
       - name: dbt run (batch 1)
         run: dbt run --profiles-dir . --target ci
+
+      - name: dbt snapshot (initial)
+        run: dbt snapshot --profiles-dir . --target ci
 
       - name: dbt test (batch 1)
         run: dbt test --profiles-dir . --target ci
@@ -55,11 +55,11 @@ jobs:
           import duckdb, pathlib
           con = duckdb.connect("target/ci_warehouse.duckdb")
           tables = [
-              "main_marts.fct_trades",
-              "main_marts.dim_account",
-              "main_marts.dim_instrument",
-              "main_marts.dim_date",
-              "main_snapshots.snap_account_attributes",
+              "marts.fct_trades",
+              "marts.dim_account",
+              "marts.dim_instrument",
+              "marts.dim_date",
+              "snapshots.snap_account_attributes",
           ]
           pathlib.Path("target").mkdir(exist_ok=True)
           with open("target/row_counts_batch1.txt", "w") as f:
@@ -88,10 +88,10 @@ jobs:
           import duckdb
           con = duckdb.connect("target/ci_warehouse.duckdb")
           for t in [
-              "main_marts.fct_trades",
-              "main_snapshots.snap_account_attributes",
-              "main_marts.mart_daily_trade_volume",
-              "main_marts.mart_instrument_activity",
+              "marts.fct_trades",
+              "snapshots.snap_account_attributes",
+              "marts.mart_daily_trade_volume",
+              "marts.mart_instrument_activity",
           ]:
               n = con.execute(f"select count(*) from {t}").fetchone()[0]
               print(f"{t}={n}")
@@ -99,7 +99,7 @@ jobs:
           print("--- snap sample ---")
           print(con.execute("""
             select account_id, risk_rating, tier, dbt_valid_from, dbt_valid_to
-            from main_snapshots.snap_account_attributes
+            from snapshots.snap_account_attributes
             where account_id in ('ACC001','ACC005')
             order by account_id, dbt_valid_from
           """).fetchdf().to_string(index=False))

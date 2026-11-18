@@ -20,8 +20,8 @@ setup:
 build:
 	$(DBT) deps --profiles-dir .
 	$(DBT) seed --profiles-dir .
-	$(DBT) snapshot --profiles-dir .
 	$(DBT) run --profiles-dir .
+	$(DBT) snapshot --profiles-dir .
 	$(DBT) test --profiles-dir .
 	@echo "--- second batch (incremental + snapshot) ---"
 	cp data_batches/raw_account_attributes_v2.csv seeds/raw_account_attributes.csv
