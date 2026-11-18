@@ -1,0 +1,39 @@
+version: 2
+
+sources:
+  - name: capital_markets
+    description: Synthetic capital-markets trade feeds loaded via dbt seeds (CSV).
+    schema: raw
+    tables:
+      - name: raw_accounts
+        description: Trading account master.
+        columns:
+          - name: account_id
+            description: Natural key for the account.
+            tests:
+              - unique
+              - not_null
+      - name: raw_instruments
+        description: Tradeable instrument reference data.
+        columns:
+          - name: instrument_id
+            tests:
+              - unique
+              - not_null
+      - name: raw_trades
+        description: Initial trade blotter batch (T0001-T0040).
+        columns:
+          - name: trade_id
+            tests:
+              - unique
+              - not_null
+      - name: raw_trades_batch2
+        description: Second trade blotter batch (T0041-T0050) for incremental demo.
+      - name: raw_account_attributes
+        description: Current account risk attributes; overwritten on second snapshot pass.
+        columns:
+          - name: account_id
+            tests:
+              - unique
+              - not_null
+

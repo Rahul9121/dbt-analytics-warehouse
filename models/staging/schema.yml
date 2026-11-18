@@ -1,0 +1,56 @@
+version: 2
+
+models:
+  - name: stg_accounts
+    description: Cleaned trading accounts from the capital_markets source.
+    columns:
+      - name: account_id
+        tests: [unique, not_null]
+      - name: account_type
+        tests:
+          - accepted_values:
+              values: ['PROP', 'CLIENT', 'HEDGE']
+      - name: status
+        tests:
+          - accepted_values:
+              values: ['ACTIVE', 'CLOSED']
+
+  - name: stg_instruments
+    description: Cleaned instrument reference data.
+    columns:
+      - name: instrument_id
+        tests: [unique, not_null]
+      - name: asset_class
+        tests:
+          - accepted_values:
+              values: ['EQUITY', 'FX', 'FIXED_INCOME', 'CREDIT']
+      - name: symbol
+        tests: [not_null]
+
+  - name: stg_trades
+    description: Cleaned trade blotter. Batch 2 rows appear when var load_batch_2 is true.
+    columns:
+      - name: trade_id
+        tests: [unique, not_null]
+      - name: side
+        tests:
+          - accepted_values:
+              values: ['BUY', 'SELL']
+      - name: account_id
+        tests: [not_null]
+      - name: instrument_id
+        tests: [not_null]
+      - name: quantity
+        tests: [not_null]
+      - name: price
+        tests: [not_null]
+
+  - name: stg_account_attributes
+    description: Current risk attributes per account (snapshot source).
+    columns:
+      - name: account_id
+        tests: [unique, not_null]
+      - name: risk_rating
+        tests:
+          - accepted_values:
+              values: ['LOW', 'MEDIUM', 'HIGH']
