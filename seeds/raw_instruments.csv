@@ -1,0 +1,12 @@
+instrument_id,symbol,instrument_name,asset_class,sector,currency,exchange,list_date,is_active
+INS001,AAPL,Apple Inc,EQUITY,Technology,USD,NASDAQ,1980-12-12,true
+INS002,MSFT,Microsoft Corp,EQUITY,Technology,USD,NASDAQ,1986-03-13,true
+INS003,JPM,JPMorgan Chase,EQUITY,Financials,USD,NYSE,1969-03-05,true
+INS004,XOM,Exxon Mobil,EQUITY,Energy,USD,NYSE,1972-01-01,true
+INS005,EURUSD,Euro / US Dollar,FX,Currencies,USD,OTC,1999-01-01,true
+INS006,USDJPY,US Dollar / Yen,FX,Currencies,USD,OTC,1971-08-15,true
+INS007,US10Y,US 10Y Treasury Note,FIXED_INCOME,Rates,USD,OTC,1990-01-01,true
+INS008,IGCDX,CDX IG Index,CREDIT,Credit,USD,OTC,2003-01-01,true
+INS009,SPX,S&P 500 Index,EQUITY,Index,USD,CBOE,1957-03-04,true
+INS010,TSLA,Tesla Inc,EQUITY,Consumer,USD,NASDAQ,2010-06-29,true
+
